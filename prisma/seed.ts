@@ -2,9 +2,24 @@ import bcrypt from "bcryptjs";
 import { PrismaClient, AdminRole } from "@prisma/client";
 
 const prisma = new PrismaClient();
-const adminEmail = process.env.ADMIN_SEED_EMAIL ?? "admin@example.com";
-const adminPassword = process.env.ADMIN_SEED_PASSWORD ?? "ChangeMe123!";
-const singleAccountMode = (process.env.ADMIN_SINGLE_ACCOUNT_MODE ?? "true") === "true";
+
+const WRAPPING_QUOTES_REGEX = /^[`"'“”‘’]+|[`"'“”‘’]+$/g;
+
+function sanitizeEnvString(value: string | undefined, fallback: string) {
+  return (value ?? fallback).trim().replace(WRAPPING_QUOTES_REGEX, "");
+}
+
+function parseBooleanEnv(value: string | undefined, fallback: boolean) {
+  if (!value) return fallback;
+  const normalized = value.trim().replace(WRAPPING_QUOTES_REGEX, "").toLowerCase();
+  if (normalized === "true") return true;
+  if (normalized === "false") return false;
+  return fallback;
+}
+
+const adminEmail = sanitizeEnvString(process.env.ADMIN_SEED_EMAIL, "admin@example.com");
+const adminPassword = sanitizeEnvString(process.env.ADMIN_SEED_PASSWORD, "ChangeMe123!");
+const singleAccountMode = parseBooleanEnv(process.env.ADMIN_SINGLE_ACCOUNT_MODE, true);
 
 function generateActivationCode() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";

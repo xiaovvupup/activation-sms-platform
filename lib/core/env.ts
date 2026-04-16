@@ -1,5 +1,21 @@
 import { z } from "zod";
 
+const WRAPPING_QUOTES_REGEX = /^[`"'“”‘’]+|[`"'“”‘’]+$/g;
+
+function sanitizeEnvString(value: unknown): unknown {
+  if (typeof value !== "string") {
+    return value;
+  }
+  return value.trim().replace(WRAPPING_QUOTES_REGEX, "");
+}
+
+function parseBooleanEnv(value: string, defaultValue: boolean) {
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "true") return true;
+  if (normalized === "false") return false;
+  return defaultValue;
+}
+
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   DATABASE_URL: z.string().min(1).default("postgresql://postgres:postgres@localhost:5432/activation_sms?schema=public"),
@@ -21,9 +37,13 @@ const envSchema = z.object({
   ADMIN_RATE_LIMIT: z.coerce.number().int().positive().default(120),
   WEBHOOK_TOKEN: z.string().optional(),
   WEBHOOK_IP_WHITELIST: z.string().default("84.32.223.53,185.138.88.87"),
-  ADMIN_SEED_EMAIL: z.string().email().default("admin@example.com"),
-  ADMIN_SEED_PASSWORD: z.string().min(8).default("ChangeMe123!"),
-  ADMIN_SINGLE_ACCOUNT_MODE: z.coerce.boolean().default(true)
+  ADMIN_SEED_EMAIL: z.preprocess(sanitizeEnvString, z.string().email().default("admin@example.com")).transform((value) =>
+    value.toLowerCase()
+  ),
+  ADMIN_SEED_PASSWORD: z.preprocess(sanitizeEnvString, z.string().min(8).default("ChangeMe123!")),
+  ADMIN_SINGLE_ACCOUNT_MODE: z.preprocess(sanitizeEnvString, z.string().default("true")).transform((value) =>
+    parseBooleanEnv(value, true)
+  )
 });
 
 export const env = envSchema.parse(process.env);
