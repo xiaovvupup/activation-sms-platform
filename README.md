@@ -55,6 +55,11 @@ npm run dev
 npm run dev:local
 ```
 
+如果使用 Neon / Vercel 这类托管数据库，建议同时配置：
+
+- `DATABASE_URL`: 应用运行时连接字符串，可使用池化连接
+- `DIRECT_URL`: Prisma migration 直连字符串，建议使用非池化直连
+
 管理员账号变更（修改 `.env` 中 `ADMIN_SEED_EMAIL/ADMIN_SEED_PASSWORD`）后，请执行：
 
 ```bash
@@ -198,3 +203,10 @@ Dockerfile
 - 管理员鉴权升级为双因素认证 + RBAC
 - 审计日志导出到 ELK/ClickHouse
 - webhook 增加签名验签与重放防护
+
+## Vercel + Neon 说明
+
+- Vercel 构建命令使用 `npm run vercel-build`
+- 该命令会执行 `prisma migrate deploy`，因此生产环境必须能连上 PostgreSQL
+- 如果 `DATABASE_URL` 使用了池化连接，建议额外设置 `DIRECT_URL` 为 Neon 的直连字符串，避免迁移阶段报错
+- 若只想先验证前端部署，也可以暂时把 Vercel Build Command 改为 `prisma generate && next build`，等数据库环境变量确认无误后再恢复
