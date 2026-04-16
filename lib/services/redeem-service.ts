@@ -12,7 +12,7 @@ export const redeemService = {
   async redeemCode(rawCode: string, userIp: string) {
     const activationCode = normalizeActivationCode(rawCode);
     if (!activationCode) {
-      throw new AppError("激活码格式错误，应为 XXXX-XXXX-XXXX", "INVALID_ACTIVATION_CODE", 422);
+      throw new AppError("激活码格式错误，应为 12 位字母数字组合（如 DK42BCPDPPRL）", "INVALID_ACTIVATION_CODE", 422);
     }
 
     const now = new Date();

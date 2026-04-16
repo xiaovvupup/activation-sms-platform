@@ -25,7 +25,7 @@ function generateActivationCode() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   const bytes = crypto.getRandomValues(new Uint8Array(12));
   const values = Array.from(bytes).map((v) => chars[v % chars.length]);
-  return `${values.slice(0, 4).join("")}-${values.slice(4, 8).join("")}-${values.slice(8, 12).join("")}`;
+  return values.join("");
 }
 
 async function main() {

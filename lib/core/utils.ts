@@ -6,8 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatActivationCodeInput(raw: string): string {
-  const clean = raw.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12);
-  return clean.replace(/(.{4})/g, "$1-").replace(/-$/, "");
+  return raw.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12);
 }
 
 export function normalizeActivationCode(raw: string): string {
@@ -15,7 +14,7 @@ export function normalizeActivationCode(raw: string): string {
   if (clean.length !== 12) {
     return "";
   }
-  return clean.match(/.{1,4}/g)?.join("-") ?? "";
+  return clean;
 }
 
 export function generateActivationCode(): string {
@@ -23,7 +22,7 @@ export function generateActivationCode(): string {
   const values = Array.from(crypto.getRandomValues(new Uint8Array(12))).map(
     (v) => chars[v % chars.length]
   );
-  return `${values.slice(0, 4).join("")}-${values.slice(4, 8).join("")}-${values.slice(8, 12).join("")}`;
+  return values.join("");
 }
 
 export function extractVerificationCode(text?: string | null, existing?: string | null) {

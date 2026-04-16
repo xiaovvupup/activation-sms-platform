@@ -41,7 +41,7 @@ export function RedeemForm() {
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <Input
-        placeholder="请输入激活码（XXXX-XXXX-XXXX）"
+        placeholder="请输入激活码（例如 DK42BCPDPPRL）"
         value={activationCode}
         onChange={(e) => setActivationCode(formatActivationCodeInput(e.target.value))}
         className="h-14 text-base tracking-[0.18em] uppercase md:text-lg"

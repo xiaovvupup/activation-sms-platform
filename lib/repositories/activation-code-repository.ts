@@ -3,6 +3,11 @@ import { prisma } from "@/lib/db/prisma";
 
 type Tx = Prisma.TransactionClient;
 
+function toLegacyActivationCode(code: string) {
+  if (code.length !== 12) return code;
+  return `${code.slice(0, 4)}-${code.slice(4, 8)}-${code.slice(8, 12)}`;
+}
+
 export const activationCodeRepository = {
   async reserveCode(code: string, ip: string, tx: Tx) {
     const now = new Date();
@@ -24,8 +29,11 @@ export const activationCodeRepository = {
 
   async findByCode(code: string, tx?: Tx) {
     const db = tx ?? prisma;
-    return db.activationCode.findUnique({
-      where: { code }
+    const legacy = toLegacyActivationCode(code);
+    return db.activationCode.findFirst({
+      where: {
+        OR: [{ code }, { code: legacy }]
+      }
     });
   },
 
